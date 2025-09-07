@@ -27,7 +27,6 @@ public class Celebrus {
         commandManager = new CommandManager();
 
         MinecraftForge.EVENT_BUS.register(new EventManager());
-        MinecraftForge.EVENT_BUS.register(commandManager); // Регистрируем CommandManager в Forge event bus
 
         Display.setTitle(NAME + " " + VERSION);
     }

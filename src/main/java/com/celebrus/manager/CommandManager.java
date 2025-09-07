@@ -5,8 +5,9 @@ import com.celebrus.command.impl.BindCommand;
 import net.minecraft.client.Minecraft;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.client.event.ClientChatEvent;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
+import org.lwjgl.input.Keyboard;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -20,13 +21,9 @@ public class CommandManager {
         commands.add(new BindCommand());
     }
 
-    @SubscribeEvent
-    public void onClientChat(ClientChatEvent event) {
-        String message = event.getMessage();
-        
+    // Обработка команд через консоль (для тестирования)
+    public void processCommand(String message) {
         if (message.startsWith(prefix)) {
-            event.setCanceled(true); // Отменяем отправку сообщения
-            
             String commandStr = message.substring(prefix.length());
             String[] args = commandStr.split(" ");
 

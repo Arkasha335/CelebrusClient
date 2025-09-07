@@ -1,54 +1,30 @@
 package com.celebrus.setting;
 
-public class RangeSetting extends Setting {
-    private double minValue, maxValue;
-    private final double absoluteMin, absoluteMax, increment;
+import java.util.Arrays;
+import java.util.List;
 
-    public RangeSetting(String name, double defaultMin, double defaultMax, double absoluteMin, double absoluteMax, double increment) {
+public class ModeSetting extends Setting {
+    private String currentMode;
+    private final List<String> modes;
+    private int index;
+
+    public ModeSetting(String name, String defaultMode, String... modes) {
         super(name);
-        this.minValue = defaultMin;
-        this.maxValue = defaultMax;
-        this.absoluteMin = absoluteMin;
-        this.absoluteMax = absoluteMax;
-        this.increment = increment;
+        this.modes = Arrays.asList(modes);
+        this.currentMode = defaultMode;
+        this.index = this.modes.indexOf(defaultMode);
     }
 
-    public double getMinValue() {
-        return minValue;
+    public String getMode() {
+        return currentMode;
     }
 
-    public void setMinValue(double minValue) {
-        this.minValue = Math.max(absoluteMin, Math.min(absoluteMax, minValue));
-        if (this.minValue > maxValue) {
-            this.minValue = maxValue;
-        }
+    public void setMode(String mode) {
+        this.currentMode = mode;
+        this.index = modes.indexOf(mode);
     }
 
-    public double getMaxValue() {
-        return maxValue;
-    }
-
-    public void setMaxValue(double maxValue) {
-        this.maxValue = Math.max(absoluteMin, Math.min(absoluteMax, maxValue));
-        if (this.maxValue < minValue) {
-            this.maxValue = minValue;
-        }
-    }
-
-    public double getAbsoluteMin() {
-        return absoluteMin;
-    }
-
-    public double getAbsoluteMax() {
-        return absoluteMax;
-    }
-
-    public double getIncrement() {
-        return increment;
-    }
-
-    public double getRandomValue() {
-        if (minValue == maxValue) return minValue;
-        return minValue + Math.random() * (maxValue - minValue);
+    public List<String> getModes() {
+        return modes;
     }
 }
