@@ -8,7 +8,8 @@ import java.util.Arrays;
 import java.util.List;
 
 public abstract class Module {
-    protected static final Minecraft mc = Minecraft.getMinecraft();
+    // V--- ИСПРАВЛЕНО ЗДЕСЬ ---V
+    public static final Minecraft mc = Minecraft.getMinecraft();
 
     private final String name;
     private final Category category;

@@ -3,7 +3,8 @@ package com.celebrus.command;
 import net.minecraft.client.Minecraft;
 
 public abstract class Command {
-    protected static final Minecraft mc = Minecraft.getMinecraft();
+    // V--- ИСПРАВЛЕНО ЗДЕСЬ ---V
+    public static final Minecraft mc = Minecraft.getMinecraft();
     private final String name;
     private final String[] aliases;
 
