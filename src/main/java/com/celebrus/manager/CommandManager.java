@@ -4,7 +4,7 @@ import com.celebrus.command.Command;
 import com.celebrus.command.impl.BindCommand;
 import net.minecraft.util.ChatComponentText;
 import net.minecraft.util.EnumChatFormatting;
-import net.minecraftforge.client.event.ClientChatSentEvent; // <--- ИЗМЕНЕН IMPORT
+import net.minecraftforge.client.event.ClientSendMessageEvent; // <--- ИСПРАВЛЕН IMPORT
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
 
@@ -21,9 +21,9 @@ public class CommandManager {
         commands.add(new BindCommand());
     }
 
-    // V--- ИЗМЕНЕНО СОБЫТИЕ ---V
+    // V--- ИСПРАВЛЕНО СОБЫТИЕ ---V
     @SubscribeEvent
-    public void onChatSent(ClientChatSentEvent event) {
+    public void onChatSent(ClientSendMessageEvent event) {
         String message = event.message;
 
         if (!message.startsWith(prefix)) {
@@ -31,7 +31,7 @@ public class CommandManager {
         }
 
         event.setCanceled(true);
-        mc.ingameGUI.getChatGUI().addToSentMessages(message); // Добавляем команду в историю чата
+        Command.mc.ingameGUI.getChatGUI().addToSentMessages(message); // Добавляем команду в историю чата
 
         message = message.substring(prefix.length());
         String[] args = message.split(" ");

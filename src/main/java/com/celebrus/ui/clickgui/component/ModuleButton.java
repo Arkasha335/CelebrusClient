@@ -19,7 +19,6 @@ public class ModuleButton extends Component {
         super(x, y, width, height);
         this.module = module;
 
-        // Создаем компоненты для каждой настройки
         int settingY = y + height;
         for (Setting setting : module.settings) {
             if (setting instanceof BooleanSetting) {
