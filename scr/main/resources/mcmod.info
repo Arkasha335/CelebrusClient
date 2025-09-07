@@ -1,0 +1,16 @@
+[
+  {
+    "modid": "celebrus",
+    "name": "Celebrus Client",
+    "description": "A private client for research purposes.",
+    "version": "${version}",
+    "mcversion": "${mcversion}",
+    "url": "",
+    "updateUrl": "",
+    "authorList": ["Vortex"],
+    "credits": "",
+    "logoFile": "",
+    "screenshots": [],
+    "dependencies": []
+  }
+]
