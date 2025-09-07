@@ -1,7 +1,8 @@
 package com.celebrus.ui.clickgui;
 
+import com.celebrus.Celebrus; // <--- ДОБАВЛЕН НУЖНЫЙ IMPORT
 import com.celebrus.module.Module;
-import com.celebrus.ui.clickgui.component.CategoryPanel;
+import com.celebrus.ui.clickgui.component.CategoryPanel; // <--- ДОБАВЛЕН НУЖНЫЙ IMPORT
 import net.minecraft.client.gui.GuiScreen;
 
 import java.io.IOException;

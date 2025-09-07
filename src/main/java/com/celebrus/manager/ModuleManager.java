@@ -1,6 +1,7 @@
 package com.celebrus.manager;
 
 import com.celebrus.module.Module;
+import com.celebrus.module.impl.combat.KillAura
 import java.util.ArrayList;
 import java.util.List;
 
