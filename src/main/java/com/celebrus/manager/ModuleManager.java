@@ -1,7 +1,8 @@
 package com.celebrus.manager;
 
 import com.celebrus.module.Module;
-import com.celebrus.module.impl.combat.KillAura
+import com.celebrus.module.impl.combat.KillAura; // <--- ДОБАВЬ ЗДЕСЬ ТОЧКУ С ЗАПЯТОЙ
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -10,7 +11,7 @@ public class ModuleManager {
 
     public ModuleManager() {
         // Здесь мы будем добавлять (регистрировать) все наши модули
-        modules.add(new KillAura()); // <--- ДОБАВЬ ЭТУ СТРОЧКУ
+        modules.add(new KillAura());
     }
 
     public Module getModule(String name) {
