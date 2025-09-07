@@ -5,68 +5,92 @@ import com.celebrus.module.Module;
 import com.celebrus.setting.BooleanSetting;
 import com.celebrus.setting.ModeSetting;
 import com.celebrus.setting.NumberSetting;
+import net.minecraft.entity.Entity;
+import net.minecraft.entity.EntityLivingBase;
+import net.minecraft.entity.player.EntityPlayer;
+
+import java.util.Comparator;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public class KillAura extends Module {
 
-    // General Settings
-    private final NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 1);
+    // --- Настройки ---
     private final NumberSetting range = new NumberSetting("Range", 4.2, 3.0, 6.0, 0.1);
+    private final NumberSetting cps = new NumberSetting("CPS", 12, 1, 20, 1);
     private final BooleanSetting keepSprint = new BooleanSetting("KeepSprint", true);
-    private final ModeSetting swing = new ModeSetting("Swing", "Client", "Client", "Server", "None");
-
-    // Targeting Settings
-    private final ModeSetting priority = new ModeSetting("Priority", "Distance", "Distance", "Health", "FOV");
-    private final NumberSetting fov = new NumberSetting("FOV", 180, 1, 360, 1);
     private final BooleanSetting players = new BooleanSetting("Players", true);
     private final BooleanSetting invisibles = new BooleanSetting("Invisibles", false);
-
-    // Rotations Settings
-    private final ModeSetting rotations = new ModeSetting("Rotations", "Silent", "Silent", "Normal");
-    private final NumberSetting horizontalSpeed = new NumberSetting("Horizontal Speed", 15, 1, 40, 1);
-    private final NumberSetting verticalSpeed = new NumberSetting("Vertical Speed", 10, 1, 40, 1);
-    private final BooleanSetting rayCast = new BooleanSetting("RayCast", true);
-    private final BooleanSetting prediction = new BooleanSetting("Prediction", true);
-
-    // Bypass Settings
-    private final NumberSetting hurtTime = new NumberSetting("HurtTime", 10, 0, 10, 1);
-    private final ModeSetting strafeFix = new ModeSetting("StrafeFix", "Silent", "Silent", "Strict", "None");
-
-    // Visuals Settings
-    private final BooleanSetting targetESP = new BooleanSetting("TargetESP", true);
     private final BooleanSetting fakeAutoBlock = new BooleanSetting("FakeAutoBlock", true);
 
+    // --- Переменные для логики ---
+    private EntityLivingBase target;
+    private long lastAttackTime;
 
     public KillAura() {
         super("KillAura", Category.COMBAT);
-        // Добавляем все наши настройки в модуль, чтобы они были видны в GUI
-        addSettings(
-                cps, range, keepSprint, swing,
-                priority, fov, players, invisibles,
-                rotations, horizontalSpeed, verticalSpeed, rayCast, prediction,
-                hurtTime, strafeFix,
-                targetESP, fakeAutoBlock
-        );
+        addSettings(range, cps, keepSprint, players, invisibles, fakeAutoBlock);
     }
 
     @EventManager.Subscribe
     public void onUpdate(EventManager.EventUpdate event) {
         if (!this.isEnabled()) return;
 
-        // Здесь будет основная логика KillAura
-        // 1. Поиск цели
-        // 2. Расчет ротаций
-        // 3. Атака
+        // 1. Поиск новой цели
+        findTarget();
+
+        // 2. Проверка, валидна ли текущая цель
+        if (target == null || mc.thePlayer.getDistanceToEntity(target) > range.getValue() || target.isDead) {
+            target = null;
+            return;
+        }
+
+        // 3. Расчет времени для атаки
+        long time = System.currentTimeMillis();
+        long delay = (long) (1000 / cps.getValue());
+
+        if (time - lastAttackTime >= delay) {
+            // 4. Атака
+            attack(target);
+            lastAttackTime = time;
+        }
+    }
+
+    private void findTarget() {
+        List<EntityLivingBase> targets = mc.theWorld.loadedEntityList.stream()
+                .filter(entity -> entity instanceof EntityLivingBase)
+                .map(entity -> (EntityLivingBase) entity)
+                .filter(this::isValid)
+                .sorted(Comparator.comparingDouble(e -> mc.thePlayer.getDistanceSqToEntity(e)))
+                .collect(Collectors.toList());
+
+        target = targets.isEmpty() ? null : targets.get(0);
+    }
+
+    private void attack(Entity entity) {
+        mc.thePlayer.swingItem();
+        mc.playerController.attackEntity(mc.thePlayer, entity);
+
+        if (!keepSprint.isEnabled()) {
+            mc.thePlayer.setSprinting(false);
+        }
+    }
+
+    private boolean isValid(EntityLivingBase entity) {
+        if (entity == mc.thePlayer || entity.isDead) return false;
+        if (mc.thePlayer.getDistanceToEntity(entity) > range.getValue()) return false;
+        if (entity.isInvisible() && !invisibles.isEnabled()) return false;
+        return entity instanceof EntityPlayer && players.isEnabled();
     }
 
     @Override
     public void onEnable() {
-        super.onEnable(); // Это важно, чтобы зарегистрировать событие
-        // Логика при включении модуля
+        super.onEnable();
     }
 
     @Override
     public void onDisable() {
-        super.onDisable(); // Это важно, чтобы отписаться от события
-        // Логика при выключении модуля
+        super.onDisable();
+        target = null; // Сбрасываем цель при выключении
     }
 }
