@@ -1,8 +1,8 @@
 package com.celebrus.ui.clickgui;
 
-import com.celebrus.Celebrus; // <--- ДОБАВЛЕН НУЖНЫЙ IMPORT
+import com.celebrus.Celebrus;
 import com.celebrus.module.Module;
-import com.celebrus.ui.clickgui.component.CategoryPanel; // <--- ДОБАВЛЕН НУЖНЫЙ IMPORT
+import com.celebrus.ui.clickgui.component.CategoryPanel;
 import net.minecraft.client.gui.GuiScreen;
 
 import java.io.IOException;
@@ -11,19 +11,17 @@ import java.util.List;
 
 public class ClickGui extends GuiScreen {
 
-    private final List<CategoryPanel> panels; // Список панелей для каждой категории
+    private final List<CategoryPanel> panels;
 
     public ClickGui() {
         panels = new ArrayList<>();
 
         int panelX = 10;
-        // Проходим по всем категориям и создаем для каждой свою панель
         for (Module.Category category : Module.Category.values()) {
-            // Мы создаем панель только если в этой категории есть хотя бы один модуль
             if (!Celebrus.instance.moduleManager.getModulesInCategory(category).isEmpty()) {
                 CategoryPanel panel = new CategoryPanel(category, panelX, 10, 100, 15);
                 panels.add(panel);
-                panelX += 110; // Смещаем следующую панель вправо
+                panelX += 110;
             }
         }
     }
@@ -32,7 +30,6 @@ public class ClickGui extends GuiScreen {
     public void drawScreen(int mouseX, int mouseY, float partialTicks) {
         this.drawDefaultBackground();
 
-        // Отрисовываем все панели
         for (CategoryPanel panel : panels) {
             panel.drawScreen(mouseX, mouseY, partialTicks);
         }
@@ -42,7 +39,6 @@ public class ClickGui extends GuiScreen {
 
     @Override
     protected void mouseClicked(int mouseX, int mouseY, int mouseButton) throws IOException {
-        // Передаем клики всем панелям
         for (CategoryPanel panel : panels) {
             panel.mouseClicked(mouseX, mouseY, mouseButton);
         }
@@ -51,7 +47,10 @@ public class ClickGui extends GuiScreen {
 
     @Override
     protected void mouseReleased(int mouseX, int mouseY, int state) {
-        // Этот метод нам пока не нужен, но оставим его для будущего
+        // Передаем mouseReleased всем панелям
+        for (CategoryPanel panel : panels) {
+            panel.mouseReleased(mouseX, mouseY, state);
+        }
         super.mouseReleased(mouseX, mouseY, state);
     }
 

@@ -51,4 +51,4 @@ public class RangeSetting extends Setting {
         if (minValue == maxValue) return minValue;
         return minValue + Math.random() * (maxValue - minValue);
     }
-}
+} 

@@ -4,6 +4,7 @@ import com.celebrus.module.Module;
 import com.celebrus.setting.BooleanSetting;
 import com.celebrus.setting.ModeSetting;
 import com.celebrus.setting.NumberSetting;
+import com.celebrus.setting.RangeSetting;
 import com.celebrus.setting.Setting;
 import net.minecraft.client.gui.Gui;
 import java.awt.Color;
@@ -18,7 +19,11 @@ public class ModuleButton extends Component {
     public ModuleButton(Module module, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.module = module;
+        createSettingComponents();
+    }
 
+    private void createSettingComponents() {
+        settingComponents.clear();
         int settingY = y + height;
         for (Setting setting : module.settings) {
             if (setting instanceof BooleanSetting) {
@@ -27,7 +32,17 @@ public class ModuleButton extends Component {
                 settingComponents.add(new NumberComponent((NumberSetting) setting, x, settingY, width, height));
             } else if (setting instanceof ModeSetting) {
                 settingComponents.add(new ModeComponent((ModeSetting) setting, x, settingY, width, height));
+            } else if (setting instanceof RangeSetting) {
+                settingComponents.add(new RangeComponent((RangeSetting) setting, x, settingY, width, height));
             }
+            settingY += height;
+        }
+    }
+
+    private void updateSettingPositions() {
+        int settingY = y + height;
+        for (Component component : settingComponents) {
+            component.y = settingY;
             settingY += height;
         }
     }
@@ -39,6 +54,7 @@ public class ModuleButton extends Component {
         fr.drawStringWithShadow(module.getName(), x + 4, y + height / 2f - fr.FONT_HEIGHT / 2f, -1);
 
         if (settingsOpen) {
+            updateSettingPositions();
             for (Component component : settingComponents) {
                 component.drawScreen(mouseX, mouseY, partialTicks);
             }
@@ -52,6 +68,9 @@ public class ModuleButton extends Component {
                 module.toggle();
             } else if (mouseButton == 1) {
                 settingsOpen = !settingsOpen;
+                if (settingsOpen) {
+                    createSettingComponents();
+                }
             }
         }
 

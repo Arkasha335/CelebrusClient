@@ -22,14 +22,12 @@ public class Celebrus {
     @Mod.EventHandler
     public void init(FMLInitializationEvent event) {
         instance = this;
-
-        // Эту строчку нужно добавить, чтобы EventManager мог слушать пакеты
-        // MinecraftForge.EVENT_BUS.register(new EventManager()); // Эта строка уже есть, но она нужна для других событий
         
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
 
         MinecraftForge.EVENT_BUS.register(new EventManager());
+        MinecraftForge.EVENT_BUS.register(commandManager); // Регистрируем CommandManager в Forge event bus
 
         Display.setTitle(NAME + " " + VERSION);
     }

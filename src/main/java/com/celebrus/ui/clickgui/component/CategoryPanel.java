@@ -15,11 +15,27 @@ public class CategoryPanel extends Component {
     public CategoryPanel(Module.Category category, int x, int y, int width, int height) {
         super(x, y, width, height);
         this.category = category;
+        createModuleButtons();
+    }
 
+    private void createModuleButtons() {
+        moduleButtons.clear();
         int buttonY = y + height;
         for (Module module : Celebrus.instance.moduleManager.getModulesInCategory(category)) {
             moduleButtons.add(new ModuleButton(module, x, buttonY, width, height));
             buttonY += height;
+        }
+    }
+
+    private void updateModulePositions() {
+        int buttonY = y + height;
+        for (ModuleButton button : moduleButtons) {
+            button.y = buttonY;
+            buttonY += height;
+            // Если у модуля открыты настройки, добавляем дополнительную высоту
+            if (button.settingsOpen) {
+                buttonY += button.settingComponents.size() * height;
+            }
         }
     }
 
@@ -29,6 +45,7 @@ public class CategoryPanel extends Component {
         fr.drawStringWithShadow(category.name(), x + 4, y + height / 2f - fr.FONT_HEIGHT / 2f, -1);
 
         if (open) {
+            updateModulePositions(); // Обновляем позиции перед отрисовкой
             for (ModuleButton button : moduleButtons) {
                 button.drawScreen(mouseX, mouseY, partialTicks);
             }
@@ -46,6 +63,15 @@ public class CategoryPanel extends Component {
         if (open) {
             for (ModuleButton button : moduleButtons) {
                 button.mouseClicked(mouseX, mouseY, mouseButton);
+            }
+        }
+    }
+
+    @Override
+    public void mouseReleased(int mouseX, int mouseY, int state) {
+        if (open) {
+            for (ModuleButton button : moduleButtons) {
+                button.mouseReleased(mouseX, mouseY, state);
             }
         }
     }
