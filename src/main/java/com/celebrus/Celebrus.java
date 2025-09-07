@@ -8,7 +8,6 @@ import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.common.event.FMLInitializationEvent;
 import org.lwjgl.opengl.Display;
 
-// V--- ИСПРАВЛЕНО ЗДЕСЬ ---V
 @Mod(modid = "celebrus", version = "1.0", name = "Celebrus Client")
 public class Celebrus {
     public static final String MODID = "celebrus";
@@ -24,6 +23,9 @@ public class Celebrus {
     public void init(FMLInitializationEvent event) {
         instance = this;
 
+        // Эту строчку нужно добавить, чтобы EventManager мог слушать пакеты
+        // MinecraftForge.EVENT_BUS.register(new EventManager()); // Эта строка уже есть, но она нужна для других событий
+        
         moduleManager = new ModuleManager();
         commandManager = new CommandManager();
 
