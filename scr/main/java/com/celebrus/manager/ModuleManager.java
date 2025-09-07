@@ -9,7 +9,7 @@ public class ModuleManager {
 
     public ModuleManager() {
         // Здесь мы будем добавлять (регистрировать) все наши модули
-        // Пример: modules.add(new KillAura());
+        modules.add(new KillAura()); // <--- ДОБАВЬ ЭТУ СТРОЧКУ
     }
 
     public Module getModule(String name) {

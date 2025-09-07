@@ -1,8 +1,13 @@
 package com.celebrus.manager;
 
+import com.celebrus.Celebrus;
 import com.celebrus.event.Event;
+import com.celebrus.ui.clickgui.ClickGui;
+import net.minecraft.client.Minecraft;
 import net.minecraftforge.fml.common.eventhandler.SubscribeEvent;
+import net.minecraftforge.fml.common.gameevent.InputEvent;
 import net.minecraftforge.fml.common.gameevent.TickEvent;
+import org.lwjgl.input.Keyboard;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
@@ -18,44 +23,29 @@ public class EventManager {
 
     // --- Annotation and Custom Event Definition ---
 
-    // Наша собственная аннотация для методов-слушателей.
-    // Мы назвали ее @Subscribe, чтобы не путать с @SubscribeEvent из Forge.
     @Target(ElementType.METHOD)
     @Retention(RetentionPolicy.RUNTIME)
     public @interface Subscribe {
     }
 
-    // Наше собственное событие, которое будет вызываться каждый игровой тик.
-    // Модули будут "слушать" именно его, чтобы выполнять свою логику.
     public static class EventUpdate extends Event {}
 
 
     // --- Event Bus Logic ---
 
-    // Хранилище для всех "подписок". Ключ - класс события, значение - список методов, которые его слушают.
     private static final Map<Class<? extends Event>, List<MethodData>> REGISTRY = new HashMap<>();
 
-    // Метод для регистрации объекта (например, модуля) в нашей системе событий
     public static void register(Object object) {
         for (final Method method : object.getClass().getDeclaredMethods()) {
-            // Ищем методы с нашей аннотацией @Subscribe
             if (method.isAnnotationPresent(Subscribe.class)) {
-                // Проверяем, что у метода только один параметр - наше событие
                 if (method.getParameterTypes().length == 1) {
                     Class<?> eventClass = method.getParameterTypes()[0];
-
-                    // Убеждаемся, что этот параметр наследуется от нашего базового класса Event
                     if (Event.class.isAssignableFrom(eventClass)) {
                         if (!method.isAccessible()) {
                             method.setAccessible(true);
                         }
-
                         Class<? extends Event> realEventClass = (Class<? extends Event>) eventClass;
-                        
-                        // Если для такого события еще нет списка подписчиков, создаем его
                         REGISTRY.computeIfAbsent(realEventClass, k -> new ArrayList<>());
-
-                        // Добавляем метод в список подписчиков
                         REGISTRY.get(realEventClass).add(new MethodData(object, method));
                     }
                 }
@@ -63,14 +53,14 @@ public class EventManager {
         }
     }
 
-    // Метод для отписки объекта
     public static void unregister(Object object) {
         for (List<MethodData> dataList : REGISTRY.values()) {
             dataList.removeIf(data -> data.getSource().equals(object));
         }
     }
 
-    // Метод для вызова события. Все подписчики на это событие будут уведомлены.
+
+
     public static <T extends Event> T call(T event) {
         List<MethodData> dataList = REGISTRY.get(event.getClass());
         if (dataList != null) {
@@ -88,7 +78,6 @@ public class EventManager {
 
     // --- Helper Class ---
 
-    // Вспомогательный класс для хранения пары (объект + его метод-слушатель)
     private static class MethodData {
         private final Object source;
         private final Method target;
@@ -103,15 +92,33 @@ public class EventManager {
     }
 
 
-    // --- Forge Event Listener ---
+    // --- Forge Event Listeners ---
 
-    // Этот метод слушает событие тика от Forge, используя его аннотацию @SubscribeEvent
     @SubscribeEvent
     public void onTick(TickEvent.ClientTickEvent event) {
-        // Мы вызываем наше собственное событие только в конце тика
         if (event.phase == TickEvent.Phase.END) {
-            // Вызываем наше кастомное событие EventUpdate, на которое будут подписываться модули
             call(new EventUpdate());
+        }
+    }
+
+    // НОВЫЙ МЕТОД ДЛЯ ОБРАБОТКИ НАЖАТИЙ КЛАВИШ
+    @SubscribeEvent
+    public void onKey(InputEvent.KeyInputEvent event) {
+        // Проверяем, была ли клавиша нажата (а не отпущена)
+        if (Keyboard.getEventKeyState()) {
+            int keyCode = Keyboard.getEventKey();
+
+            // Открываем ClickGUI по правому шифту
+            if (keyCode == Keyboard.KEY_RSHIFT) {
+                Minecraft.getMinecraft().displayGuiScreen(new ClickGui());
+            }
+
+            // Включаем/выключаем модули по их биндам
+            if (Celebrus.instance != null && Celebrus.instance.moduleManager != null) {
+                Celebrus.instance.moduleManager.modules.stream()
+                        .filter(module -> module.getKeyBind() == keyCode)
+                        .forEach(module -> module.toggle());
+            }
         }
     }
 }
